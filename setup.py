@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(
-    name = 'dict-wrapper',
+    name = 'python-dict-wrapper',
     py_modules = ['dict_wrapper'],
     version = '0.1',
     description = 'Wraps python dictionary keys are attributes',

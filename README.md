@@ -10,7 +10,7 @@ of the model object must be maintained.
 
 Example:
 
-    from dict_wrapper import DictWrapper
+    from python_dict_wrapper import DictWrapper
 
     actor = {
         "name": "Steve Carell",

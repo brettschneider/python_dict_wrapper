@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-The dict_wrapper module contains the DictWrapper class.  The DictWrapper classs
-is a utility that is used to make manipulation of a JSON-sourced dictionary
-easier while enforcing that the shape of the dictionary contents remains the
-same.
+The python_dict_wrapper module contains the DictWrapper class.  The DictWrapper
+class is a utility that is used to make manipulation of a JSON-sourced
+dictionary easier while enforcing that the shape of the dictionary contents
+remains the same.
 
 Example usage:
 

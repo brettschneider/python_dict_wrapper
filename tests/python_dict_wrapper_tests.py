@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 """
-Unit tests for the dict_wrapper module.
+Unit tests for the python_dict_wrapper module.
 """
 
 from unittest import TestCase
-from dict_wrapper import DictWrapper
+from python_dict_wrapper import DictWrapper
 
 
 class DictWrapperTests(TestCase):
