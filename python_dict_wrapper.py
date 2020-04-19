@@ -48,9 +48,9 @@ class DictWrapper(object):
         key = self._fix_key(key)
         self._check_for_bad_attribute(key)
         if isinstance(self.__private_data__[key], dict):
-            return DictWrapper(self.__private_data__[key])
+            return DictWrapper(self.__private_data__[key], strict=self.__strict__, key_prefix=self.__key_prefixes__)
         if isinstance(self.__private_data__[key], list):
-            return _ListWrapper(self.__private_data__[key])
+            return _ListWrapper(self.__private_data__[key], strict=self.__strict__, key_prefix=self.__key_prefixes__)
         return self.__private_data__[key]
 
     def __setattr__(self, key, value):
@@ -101,7 +101,7 @@ class DictWrapper(object):
 class _ListWrapper(list):
     """Present list items as DictWrappers if they are dictionaries."""
 
-    def __init__(self, data):
+    def __init__(self, data, strict, key_prefix):
         """
         The build-in [list] class makes a copy of the list data, but doesn't
         keep a reference to the original list.  For this reason we overload
@@ -109,14 +109,16 @@ class _ListWrapper(list):
         """
         super(_ListWrapper, self).__init__(data)
         self.__private_data__ = data
+        self.__strict__ = strict
+        self.__key_prefix__ = key_prefix
 
     def __getitem__(self, index):
         """If the item in question is a dictionary, wrap it."""
         value = self.__private_data__[index]
         if isinstance(value, dict):
-            return DictWrapper(value)
+            return DictWrapper(value, strict=self.__strict__, key_prefix=self.__key_prefix__)
         elif isinstance(value, list):
-            return _ListWrapper(value)
+            return _ListWrapper(value, strict=self.__strict__, key_prefix=self.__key_prefix__)
         else:
             return value
 
