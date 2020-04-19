@@ -33,13 +33,15 @@ import json
 class DictWrapper(object):
     """Wraps a dictionary and presents the dictionary's keys as attributes."""
 
-    def __init__(self, data):
+    def __init__(self, data, strict=False):
         self.__private_data__ = data
+        self.__strict__ = strict
 
     def __dir__(self):
         normal_attributes = super(DictWrapper, self).__dir__()
         combined = list(normal_attributes) + list(self.__private_data__.keys())
-        return [a for a in combined if a not in ['_check_for_bad_attribute', '_fix_key', '__private_data__']]
+        return [a for a in combined if a not in ['_check_for_bad_attribute', '_fix_key',
+                                                 '__private_data__', '__strict__']]
 
     def __getattr__(self, key):
         key = self._fix_key(key)
@@ -51,11 +53,17 @@ class DictWrapper(object):
         return self.__private_data__[key]
 
     def __setattr__(self, key, value):
-        if key == '__private_data__':
+        if key in ['__private_data__', '__strict__']:
             super(DictWrapper, self).__setattr__(key, value)
             return
         key = self._fix_key(key)
         self._check_for_bad_attribute(key)
+        if self.__strict__ and not isinstance(value, self.__private_data__[key].__class__):
+            raise TypeError("Value for %s must be a %s, not %s" % (
+                key,
+                self.__private_data__[key].__class__.__name__,
+                value.__class__.__name__
+            ))
         self.__private_data__[key] = value
 
     def _fix_key(self, key):
