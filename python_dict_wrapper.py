@@ -33,15 +33,16 @@ import json
 class DictWrapper(object):
     """Wraps a dictionary and presents the dictionary's keys as attributes."""
 
-    def __init__(self, data, strict=False):
+    def __init__(self, data, strict=False, key_prefix=None):
         self.__private_data__ = data
         self.__strict__ = strict
+        self.__key_prefixes__ = key_prefix if isinstance(key_prefix, list) else [key_prefix]
 
     def __dir__(self):
         normal_attributes = super(DictWrapper, self).__dir__()
         combined = list(normal_attributes) + list(self.__private_data__.keys())
         return [a for a in combined if a not in ['_check_for_bad_attribute', '_fix_key',
-                                                 '__private_data__', '__strict__']]
+                                                 '__private_data__', '__strict__', '__key_prefixes__']]
 
     def __getattr__(self, key):
         key = self._fix_key(key)
@@ -53,7 +54,7 @@ class DictWrapper(object):
         return self.__private_data__[key]
 
     def __setattr__(self, key, value):
-        if key in ['__private_data__', '__strict__']:
+        if key in ['__private_data__', '__strict__', '__key_prefixes__']:
             super(DictWrapper, self).__setattr__(key, value)
             return
         key = self._fix_key(key)
@@ -67,10 +68,17 @@ class DictWrapper(object):
         self.__private_data__[key] = value
 
     def _fix_key(self, key):
-        """Some Netflow keys have a '@' prefix.  Resolve that."""
-        fixed_key = "@%s" % key
-        if fixed_key in self.__private_data__:
-            return fixed_key
+        """
+        Sometimes keys in the dictionary have a have a prefix that can't be represented as an
+        attribute.  Logstash is notorious for putting keys that start with a '@' in its
+        json strings.  This hack resolves that.
+        """
+        if self.__key_prefixes__ is None:
+            return key
+        for prefix in self.__key_prefixes__:
+            fixed_key = "%s%s" % (prefix, key)
+            if fixed_key in self.__private_data__:
+                return fixed_key
         return key
 
     def _check_for_bad_attribute(self, key):

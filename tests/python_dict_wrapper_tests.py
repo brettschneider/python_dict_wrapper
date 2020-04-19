@@ -104,3 +104,16 @@ class DictWrapperTests(TestCase):
         self.assertIsInstance(self.sut.address, DictWrapper)
         self.sut.address = "1234 Failure St"
         self.assertIsInstance(self.sut.address, str)
+
+    def test_prefix_keys(self):
+        import datetime
+        now = datetime.datetime.utcnow().isoformat()
+        the_dict = {
+            '@timestamp': now,
+            'data': 'data to import'
+        }
+        sut = DictWrapper(the_dict, key_prefix="@")
+        self.assertEquals(sut.timestamp, now)
+
+        sut = DictWrapper(the_dict, key_prefix=['@'])
+        self.assertEquals(sut.timestamp, now)

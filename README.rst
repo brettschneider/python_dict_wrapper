@@ -38,7 +38,9 @@ class DictWrapper(dict, strict=False)
 Each *DictWrapper* instance takes two arguments: \* dict - A python
 dictionary that the wrapper will use as it’s source. \* strict - An
 optional boolean that indicates if the wrapper should enforce types when
-setting attribute values.
+setting attribute values. \* key_prefix - A string or list of strings
+that contains characters that dictionary keys should be prefixed with
+before they become attributes.
 
 Attributes
 ----------
@@ -87,6 +89,30 @@ attribute, it must be the same Type as the original dictionary value.
      File "dict_wrapper.py", line 62, in __setattr__
        raise TypeError("Value for %s must be a %s, not %s" % (
    TypeError: Value for street must be a str, not int
+
+If the *key_prefix* argument to the constructor is set to a string or
+list of strings, attributes in the dictionary are searched without their
+prefixes. This is typically used for dictionaries that have keys that
+cannot be represented in attributes. Here’s an example:
+
+::
+
+   >>> the_dict = {'@timestamp': '2020-04-19 05:00:00', 'author': 'Arthur Conan Doyle'}
+   >>>
+   >>> entry = DictWrapper(the_dict)
+   >>> entry.timestamp
+   Traceback (most recent call last):
+     File "<stdin>", line 1, in <module>
+     File "python_dict_wrapper.py", line 49, in __getattr__
+       self._check_for_bad_attribute(key)
+     File "python_dict_wrapper.py", line 87, in _check_for_bad_attribute
+       raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__.__name__, key))
+   AttributeError: 'DictWrapper' object has no attribute 'timestamp'
+   >>>
+   >>>
+   >>> entry = DictWrapper(the_dict, key_prefix='@')
+   >>> entry.timestamp
+   '2020-04-19 05:00:00'
 
 Methods
 -------
