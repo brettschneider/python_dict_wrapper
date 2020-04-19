@@ -3,3 +3,10 @@
 .idea
 .env
 .python-version
+*.pyc
+*.swp
+.DS_Store
+MANIFEST
+build
+dist
+dict_wrapper.egg-info
