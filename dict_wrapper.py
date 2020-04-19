@@ -71,6 +71,7 @@ class DictWrapper(object):
             raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__.__name__, key))
 
     def to_dict(self):
+        """Returns a real dictionary from this DictWrapper instance."""
         return self.__private_data__
 
     def to_json(self, pretty=False):
