@@ -30,6 +30,14 @@ you will get an AttributeError.
 import json
 
 
+def wrap(data, strict=False, key_prefix=None):
+    if isinstance(data, dict):
+        return DictWrapper(data, strict, key_prefix)
+    if isinstance(data, list):
+        return ListWrapper(data, strict, key_prefix)
+    raise TypeError("wrap() argument must be a dict or list, not  '%s'" % data.__class__.__name___)
+
+
 class DictWrapper(object):
     """Wraps a dictionary and presents the dictionary's keys as attributes."""
 
@@ -50,7 +58,7 @@ class DictWrapper(object):
         if isinstance(self.__private_data__[key], dict):
             return DictWrapper(self.__private_data__[key], strict=self.__strict__, key_prefix=self.__key_prefixes__)
         if isinstance(self.__private_data__[key], list):
-            return _ListWrapper(self.__private_data__[key], strict=self.__strict__, key_prefix=self.__key_prefixes__)
+            return ListWrapper(self.__private_data__[key], strict=self.__strict__, key_prefix=self.__key_prefixes__)
         return self.__private_data__[key]
 
     def __setattr__(self, key, value):
@@ -98,16 +106,16 @@ class DictWrapper(object):
             return json.dumps(self.__private_data__)
 
 
-class _ListWrapper(list):
+class ListWrapper(list):
     """Present list items as DictWrappers if they are dictionaries."""
 
-    def __init__(self, data, strict, key_prefix):
+    def __init__(self, data, strict=False, key_prefix=None):
         """
         The build-in [list] class makes a copy of the list data, but doesn't
         keep a reference to the original list.  For this reason we overload
         [__init__], [append] and [remove] to update the original reference list.
         """
-        super(_ListWrapper, self).__init__(data)
+        super(ListWrapper, self).__init__(data)
         self.__private_data__ = data
         self.__strict__ = strict
         self.__key_prefix__ = key_prefix
@@ -118,14 +126,21 @@ class _ListWrapper(list):
         if isinstance(value, dict):
             return DictWrapper(value, strict=self.__strict__, key_prefix=self.__key_prefix__)
         elif isinstance(value, list):
-            return _ListWrapper(value, strict=self.__strict__, key_prefix=self.__key_prefix__)
+            return ListWrapper(value, strict=self.__strict__, key_prefix=self.__key_prefix__)
         else:
             return value
 
     def append(self, item):
-        super(_ListWrapper, self).append(item)
+        super(ListWrapper, self).append(item)
         self.__private_data__.append(item)
 
     def remove(self, item):
-        super(_ListWrapper, self).remove(item)
+        super(ListWrapper, self).remove(item)
         self.__private_data__.remove(item)
+
+    def to_json(self, pretty=False):
+        """Converts ListWrapper to JSON string"""
+        if pretty:
+            return json.dumps(self.__private_data__, indent=4)
+        else:
+            return json.dumps(self.__private_data__)

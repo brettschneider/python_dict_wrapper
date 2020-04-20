@@ -4,14 +4,14 @@ Unit tests for the python_dict_wrapper module.
 """
 
 from unittest import TestCase
-from python_dict_wrapper import DictWrapper
+from python_dict_wrapper import wrap, DictWrapper, ListWrapper
 
 
 class DictWrapperTests(TestCase):
 
     def setUp(self):
         self.test_dict = {'first_name': 'Joe', 'last_name': 'Exotic'}
-        self.sut = DictWrapper(self.test_dict, strict=True)
+        self.sut = wrap(self.test_dict, strict=True)
         self.address_info = {'street': '13455 Highway 69 N', 'city': 'Adair', 'state': 'OK', 'zip': '74330-2821'}
         self.skills = ['Magician', 'Tiger training', 'Murder-for-hire Project Manager']
         self.friends = [{
@@ -99,7 +99,7 @@ class DictWrapperTests(TestCase):
         with self.assertRaises(TypeError): self.sut.address = "1234 Failure St"
 
     def test_non_strict_lack_of_enforcement(self):
-        self.sut = DictWrapper(self.test_dict)
+        self.sut = wrap(self.test_dict)
         self.sut.__private_data__['address'] = self.address_info
         self.assertIsInstance(self.sut.address, DictWrapper)
         self.sut.address = "1234 Failure St"
@@ -112,8 +112,22 @@ class DictWrapperTests(TestCase):
             '@timestamp': now,
             'data': 'data to import'
         }
-        sut = DictWrapper(the_dict, key_prefix="@")
+        sut = wrap(the_dict, key_prefix="@")
         self.assertEquals(sut.timestamp, now)
 
-        sut = DictWrapper(the_dict, key_prefix=['@'])
+        sut = wrap(the_dict, key_prefix=['@'])
         self.assertEquals(sut.timestamp, now)
+
+    def test_wraps_list_of_dicts(self):
+        list_o_data = [
+            {'first_name': 'Joe', 'last_name': 'Exotic'},
+            {'first_name': 'Carol', 'last_name': 'Baskins'},
+            {'first_name': 'Rick', 'last_name': 'Kirkham'},
+            {'first_name': 'Jeff', 'last_name': 'Lowe'},
+        ]
+        sut = wrap(list_o_data)
+        self.assertIsInstance(sut, ListWrapper)
+        self.assertEquals(len(sut), 4)
+        self.assertEquals(sut[2].last_name, 'Kirkham')
+        sut[0].last_name = 'Maldonado-Passage'
+        self.assertEquals(sut[0].to_dict()['last_name'], 'Maldonado-Passage')
