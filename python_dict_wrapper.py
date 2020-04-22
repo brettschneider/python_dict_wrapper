@@ -38,6 +38,14 @@ def wrap(data, strict=False, key_prefix=None):
     raise TypeError("wrap() argument must be a dict or list, not  '%s'" % data.__class__.__name___)
 
 
+def unwrap(wrapper):
+    if isinstance(wrapper, DictWrapper):
+        return wrapper.to_dict()
+    elif isinstance(wrapper, ListWrapper):
+        return wrapper.to_list()
+    return wrapper
+
+
 class DictWrapper(object):
     """Wraps a dictionary and presents the dictionary's keys as attributes."""
 
@@ -144,3 +152,6 @@ class ListWrapper(list):
             return json.dumps(self.__private_data__, indent=4)
         else:
             return json.dumps(self.__private_data__)
+
+    def to_list(self):
+        return self.__private_data__
