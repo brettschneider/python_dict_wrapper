@@ -2,39 +2,53 @@
 
 This is a simple class that exposes a dictionary's keys as class attributes,
 making for less typing when accessing dictionary values.  This class also
-enforces that the dictionary's overall shape is maintained.
+enforces that the dictionary's overall __shape__ is maintained.
 
 A common use of this class may be in retrieving and updating model objects
 from web services (i.e. RESTful web services) where the shape of the model
 object must be kept intact between when it is retrieved and when it is saved.
 
-Example:
+For instance, if used with [requests](https://github.com/psf/requests), the
+output of a request's _json()_ call can be wrapped and the resulting object
+will behave in much the same manner as a real model object.  The values
+can be manipulated and later _unwrapped_ to be sent back the server using
+a requests _post()_ call.
 
-    from python_dict_wrapper import wrap
+Using the python_dict_wrapper is pretty simple.  You _wrap()_ a dictionary
+(or list).  Then you manipulate and/or query it.  Finally, you can _unwrap()_
+to get the dictionary (or list) back.
 
-    actor = {
-        "name": "Steve Carell",
-        "career": [{
-            "medium": "TV",
-            "title": "The Office"
-        }, {
-            "medium": "MOVIE",
-            "title": "Bruce Almighty"
-        }]
-    }
+A trivial example:
 
-    wrapper = wrap(actor)
-    wrapper.career[1].title = "Despicable Me"
+    import requests
+    from python_dict_wrapper import wrap, unwrap
 
-    print(wrapper.to_json(pretty=True))
+    actor_dict = requests.get('http://ficticious_actor_database_site.com/actors/c/carell_steve').json()
+    
+    # Returns:
+    # {
+    #    "name": "Steve Carell",
+    #    "career": [{
+    #        "medium": "TV",
+    #        "title": "The Office"
+    #    }, {
+    #        "medium": "MOVIE",
+    #        "title": "Bruce Almighty"
+    #    }]
+    #}
 
+    actor = wrap(actor_dict)
+    actor.career[1].title = "Despicable Me"
+    unwrapped_actor = unwrap(actor)
+    
+    requests.post('http://ficticious_actor_database_site.com/actors/c/carell_steve', data=unwrapped_actor)
 
 # function wrap(data, strict=False, key_prefix=None)
 
-The _wrap_ method is a factory function for generating either a DictWrapper or
-a ListWrapper.  It has one required argument and two optional ones:
+_wrap_ is a factory function for generating either a DictWrapper or a
+ListWrapper.  It has one required argument and two optional ones:
 
-* data - A Python dictionary or a list of dictionaries that need to be wrapped.
+* data - A Python dictionary or a list of dictionaries that needs to be wrapped.
   If data is a dictionary, this method will return a DictWrapper instance.  If
   it's a list, the function will return a ListWrapper instance.  This argument
   is required.
@@ -45,6 +59,35 @@ a ListWrapper.  It has one required argument and two optional ones:
   
 This is a convenience function for when you have a data object and don't want
 to bother checking if it's a dictionary or a list.
+
+
+# function unwrap(wrapped_item)
+
+The _unwrap_ function will return the original item that was wrapped.
+
+    >>> from python_dict_wrapper import wrap, unwrap
+    >>> data_dict = {'first_name': 'Steve', 'last_name': 'Carell'}
+    >>> id(data_dict)
+    4497764480
+    >>> wrapped_data_dict = wrap(data_dict)
+    >>> id(wrapped_data_dict)
+    4498248224
+    >>> wrapped_data_dict
+    <python_dict_wrapper.DictWrapper object at 0x10c1dd220>
+    >>> unwrapped_data_dict = unwrap(wrapped_data_dict)
+    >>> unwrapped_data_dict is data_dict
+    True
+    >>> unwrapped_data_dict
+    {'first_name': 'Steve', 'last_name': 'Carell'}
+
+The _unwrap_ function will work on both _DictWrapper_ items as well as
+_ListWrapper_ items.  If the item passed to _unwrap_ is not a _DictWrapper_
+or a _ListWrapper_, _unwrap_ will just return the item untouched.
+
+_DictWrapper_ objects manipulate the original dictionary that they wrap so
+unwrapping is technically unnecessary.  That said, unwrap is available in the
+event a reference to the original dictionary is lost or goes out of scope.
+
 
 # class DictWrapper(data, strict=False, key_prefix=None)
 
@@ -185,3 +228,10 @@ a Python list, it will wrap it in another ListWrapper.
     <python_dict_wrapper.DictWrapper object at 0x10fcc60a0>
     >>> wrapped_list[2].color
     'blue'
+
+
+# Performance #
+
+_DictWrapper_ and _ListWrapper_ instances lazy evaluate on the original dicts/lists
+that they are given when wrapped.  As a result performance of these classes should
+be roughly the same as their native counterparts.
