@@ -134,6 +134,17 @@ class DictWrapperTests(TestCase):
         self.assertEquals(len(sut), 3)
         self.assertIsInstance(sut[0], str)
 
+        sut = ListWrapper(self.test_dict['friends'])
+        for f in sut:
+            self.assertIsInstance(f, DictWrapper)
+        for f in sut:
+            self.assertIsInstance(f, DictWrapper)
+        sut = ListWrapper(self.test_dict['skills'])
+        for f in sut:
+            self.assertIsInstance(f, str)
+        for f in sut:
+            self.assertIsInstance(f, str)
+
     def test_wrap(self):
         sut = wrap(self.test_dict)
         self.assertIsInstance(sut, DictWrapper)

@@ -138,6 +138,9 @@ class ListWrapper(list):
         else:
             return value
 
+    def __iter__(self):
+        return _ListWrapperIterator(self)
+
     def append(self, item):
         super(ListWrapper, self).append(item)
         self.__private_data__.append(item)
@@ -155,3 +158,18 @@ class ListWrapper(list):
 
     def to_list(self):
         return self.__private_data__
+
+
+class _ListWrapperIterator(object):
+
+    def __init__(self, list_wrapper):
+        self.idx = 0
+        self.list_wrapper = list_wrapper
+
+    def __next__(self):
+        try:
+            value = self.list_wrapper[self.idx]
+        except IndexError:
+            raise StopIteration
+        self.idx += 1
+        return value
