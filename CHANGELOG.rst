@@ -2,7 +2,7 @@
 python-dict-wrapper changelog
 =============================
 
-**2020-05-01** - Release 0.9 - Added add_attribute and del_attribute helper functions.
+**2020-05-01** - Release 0.9 - Added add_attribute and del_attribute helper functions.  Added mutable initializer.
 
 **2020-04-19** - Release 0.8 - Added iterator support to ListWrapper.
 

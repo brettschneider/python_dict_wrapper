@@ -125,6 +125,13 @@ class DictWrapperTests(TestCase):
         sut = DictWrapper(the_dict, key_prefix="@")
         self.assertEquals(sut.timestamp, now)
 
+    def test_immutability(self):
+        sut = wrap(self.test_dict, mutable=False)
+        self.assertEquals('Joe', sut.first_name)
+        with self.assertRaises(AttributeError): sut.first_name = 'Tiger'
+        with self.assertRaises(AttributeError): sut.skills.append('Prison Inmate')
+        with self.assertRaises(AttributeError): sut.skills[0] = 'Mullet styling'
+
     def test_list_wrapper(self):
         sut = ListWrapper(self.test_dict['friends'])
         self.assertEquals(len(sut), 2)
@@ -133,6 +140,8 @@ class DictWrapperTests(TestCase):
         sut = ListWrapper(self.test_dict['skills'])
         self.assertEquals(len(sut), 3)
         self.assertIsInstance(sut[0], str)
+        sut[0] = 'Mullet styling'
+        self.assertEquals(sut[0], 'Mullet styling')
 
         sut = ListWrapper(self.test_dict['friends'])
         for f in sut:

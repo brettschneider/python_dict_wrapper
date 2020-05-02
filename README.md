@@ -43,10 +43,10 @@ A trivial example:
     
     requests.post('http://ficticious_actor_database_site.com/actors/c/carell_steve', data=unwrapped_actor)
 
-# function wrap(data, strict=False, key_prefix=None)
+# function wrap(data, strict=False, key_prefix=None, mutable=True)
 
 _wrap_ is a factory function for generating either a DictWrapper or a
-ListWrapper.  It has one required argument and two optional ones:
+ListWrapper.  It has one required argument and three optional ones:
 
 * data - A Python dictionary or a list of dictionaries that needs to be wrapped.
   If data is a dictionary, this method will return a DictWrapper instance.  If
@@ -56,6 +56,7 @@ ListWrapper.  It has one required argument and two optional ones:
   types when setting attribute values.
 * key_prefix - A string or list of strings that contains characters that
   dictionary keys should be prefixed with before they become attributes.
+* mutable - A boolean indicating whether the DictWapper should be mutable or not.
   
 This is a convenience function for when you have a data object and don't want
 to bother checking if it's a dictionary or a list.
@@ -117,10 +118,10 @@ before being removed.
 
 
 
-# class DictWrapper(data, strict=False, key_prefix=None)
+# class DictWrapper(data, strict=False, key_prefix=None, mutable=True)
 
 Like the wrap function, each _DictWrapper_ instance takes one required argument
-and two optional ones:
+and three optional ones:
 
 * dict - A Python dictionary that the wrapper will use as it's source. This
   argument is required.
@@ -128,6 +129,7 @@ and two optional ones:
   types when setting attribute values.
 * key_prefix - A string or list of strings that contains characters that
   dictionary keys should be prefixed with before they become attributes.
+* mutable - A boolean indicating whether the DictWapper should be mutable or not.
  
 ## Attributes
  
@@ -230,7 +232,7 @@ instances for you.
     }
 
 
-# class ListWrapper(data, strict=False, key_prefix=None)
+# class ListWrapper(data, strict=False, key_prefix=None, mutable=True)
 
 The _ListWrapper_ is a "list" version of the _DictWrapper_.  It is used by the
 _DictWrapper_ when nesting lists within dictionary values.  The _ListWrapper_
@@ -256,6 +258,27 @@ a Python list, it will wrap it in another ListWrapper.
     <python_dict_wrapper.DictWrapper object at 0x10fcc60a0>
     >>> wrapped_list[2].color
     'blue'
+
+
+# Mutability #
+
+If the _DictWrapper_ is instantiated with _mutable_ set to True (default), the
+_DictWrapper_ will be mutable, meaning the attribute can be changed.  However, if
+_mutable_ is set to False when the DictWrapper is instantiated, it will be immutable.
+You will not be able to change any of the attributes (or nested attributes).  Any
+ListWrappers the result from lists within the underlying dict will also be immutable.
+You will not be able to add/remove from them.
+
+    >>> from python_dict_wrapper import wrap
+    >>> auth_config = wrap({'username': 'john@doe.com', 'password': 'itza!secret'}, mutable=False)
+    >>> auth_config.password
+    'itza!secret'
+    >>> auth_config.password = 'super!secret'
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+      File "python_dict_wrapper.py", line 78, in __setattr__
+        raise AttributeError("can't set attribute")
+    AttributeError: can't set attribute
 
 
 # Performance #

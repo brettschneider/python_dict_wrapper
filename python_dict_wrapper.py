@@ -30,11 +30,11 @@ you will get an AttributeError.
 import json
 
 
-def wrap(data, strict=False, key_prefix=None):
+def wrap(data, strict=False, key_prefix=None, mutable=True):
     if isinstance(data, dict):
-        return DictWrapper(data, strict, key_prefix)
+        return DictWrapper(data, strict, key_prefix, mutable)
     if isinstance(data, list):
-        return ListWrapper(data, strict, key_prefix)
+        return ListWrapper(data, strict, key_prefix, mutable)
     raise TypeError("wrap() argument must be a dict or list, not  '%s'" % data.__class__.__name___)
 
 
@@ -49,30 +49,33 @@ def unwrap(wrapper):
 class DictWrapper(object):
     """Wraps a dictionary and presents the dictionary's keys as attributes."""
 
-    def __init__(self, data, strict=False, key_prefix=None):
+    def __init__(self, data, strict=False, key_prefix=None, mutable=True):
         self.__private_data__ = data
         self.__strict__ = strict
         self.__key_prefixes__ = key_prefix if isinstance(key_prefix, list) else [key_prefix]
+        self.__mutable__ = mutable
 
     def __dir__(self):
         normal_attributes = super(DictWrapper, self).__dir__()
         combined = list(normal_attributes) + list(self.__private_data__.keys())
-        return [a for a in combined if a not in ['_check_for_bad_attribute', '_fix_key',
+        return [a for a in combined if a not in ['_check_for_bad_attribute', '_fix_key', '__mutable__',
                                                  '__private_data__', '__strict__', '__key_prefixes__']]
 
     def __getattr__(self, key):
         key = self._fix_key(key)
         self._check_for_bad_attribute(key)
         if isinstance(self.__private_data__[key], dict):
-            return DictWrapper(self.__private_data__[key], strict=self.__strict__, key_prefix=self.__key_prefixes__)
+            return DictWrapper(self.__private_data__[key], strict=self.__strict__, key_prefix=self.__key_prefixes__, mutable=self.__mutable__)
         if isinstance(self.__private_data__[key], list):
-            return ListWrapper(self.__private_data__[key], strict=self.__strict__, key_prefix=self.__key_prefixes__)
+            return ListWrapper(self.__private_data__[key], strict=self.__strict__, key_prefix=self.__key_prefixes__, mutable=self.__mutable__)
         return self.__private_data__[key]
 
     def __setattr__(self, key, value):
-        if key in ['__private_data__', '__strict__', '__key_prefixes__']:
+        if key in ['__private_data__', '__strict__', '__key_prefixes__', '__mutable__']:
             super(DictWrapper, self).__setattr__(key, value)
             return
+        if not self.__mutable__:
+            raise AttributeError("can't set attribute")
         key = self._fix_key(key)
         self._check_for_bad_attribute(key)
         if self.__strict__ and not isinstance(value, self.__private_data__[key].__class__):
@@ -117,7 +120,7 @@ class DictWrapper(object):
 class ListWrapper(list):
     """Present list items as DictWrappers if they are dictionaries."""
 
-    def __init__(self, data, strict=False, key_prefix=None):
+    def __init__(self, data, strict=False, key_prefix=None, mutable=True):
         """
         The build-in [list] class makes a copy of the list data, but doesn't
         keep a reference to the original list.  For this reason we overload
@@ -127,25 +130,36 @@ class ListWrapper(list):
         self.__private_data__ = data
         self.__strict__ = strict
         self.__key_prefix__ = key_prefix
+        self.__mutable__ = mutable
 
     def __getitem__(self, index):
         """If the item in question is a dictionary, wrap it."""
         value = self.__private_data__[index]
         if isinstance(value, dict):
-            return DictWrapper(value, strict=self.__strict__, key_prefix=self.__key_prefix__)
+            return DictWrapper(value, strict=self.__strict__, key_prefix=self.__key_prefix__, mutable=self.__mutable__)
         elif isinstance(value, list):
-            return ListWrapper(value, strict=self.__strict__, key_prefix=self.__key_prefix__)
+            return ListWrapper(value, strict=self.__strict__, key_prefix=self.__key_prefix__, mutable=self.__mutable__)
         else:
             return value
+
+    def __setitem__(self, index, value):
+        if not self.__mutable__:
+            raise AttributeError("can't set attribute")
+        self.__private_data__[index] = value
+        super(ListWrapper, self).__setitem__(index, value)
 
     def __iter__(self):
         return _ListWrapperIterator(self)
 
     def append(self, item):
+        if not self.__mutable__:
+            raise AttributeError("can't set attribute")
         super(ListWrapper, self).append(item)
         self.__private_data__.append(item)
 
     def remove(self, item):
+        if not self.__mutable__:
+            raise AttributeError("can't set attribute")
         super(ListWrapper, self).remove(item)
         self.__private_data__.remove(item)
 
