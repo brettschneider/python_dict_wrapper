@@ -173,3 +173,25 @@ class _ListWrapperIterator(object):
             raise StopIteration
         self.idx += 1
         return value
+
+
+def add_attribute(wrapper: DictWrapper, attribute: str, value):
+    """
+    Add an attribute to an existing DictWrapper.  Has the effect of adding a new
+    key to the underlying dictionary.
+    """
+    if not isinstance(wrapper, DictWrapper):
+        raise TypeError("add_attribute() argument must be a DictWrapper, not  '%s'" % wrapper.__class__.__name___)
+    wrapper.__private_data__[attribute] = value
+
+
+def del_attribute(wrapper: DictWrapper, attribute: str):
+    """
+    Removes an attribute from an existing DictWrapper.  Has the effect of
+    removing a key from the underlying dictionary.
+    """
+    if not isinstance(wrapper, DictWrapper):
+        raise TypeError("del_attribute() argument must be a DictWrapper, not  '%s'" % wrapper.__class__.__name___)
+    value = wrapper.__private_data__[attribute]
+    del wrapper.__private_data__[attribute]
+    return value

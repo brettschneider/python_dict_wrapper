@@ -4,7 +4,7 @@ Unit tests for the python_dict_wrapper module.
 """
 
 from unittest import TestCase
-from python_dict_wrapper import wrap, DictWrapper, ListWrapper, unwrap
+from python_dict_wrapper import wrap, DictWrapper, ListWrapper, unwrap, add_attribute, del_attribute
 
 
 class DictWrapperTests(TestCase):
@@ -163,3 +163,17 @@ class DictWrapperTests(TestCase):
         result = unwrap(sut)
         self.assertIs(result, self.test_dict['friends'])
         self.assertIsInstance(result, list)
+
+    def test_add_attribute(self):
+        sut = wrap(self.test_dict)
+        with self.assertRaises(AttributeError): _ = sut.middle_name
+        add_attribute(sut, 'middle_name', 'the')
+        self.assertEqual(sut.middle_name, 'the')
+
+    def test_del_attribute(self):
+        sut = wrap(self.test_dict)
+        self.assertEquals(sut.first_name, 'Joe')
+        value = del_attribute(sut, 'first_name')
+        self.assertEquals(value, 'Joe')
+        with self.assertRaises(AttributeError): _ = sut.first_name
+

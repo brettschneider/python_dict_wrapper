@@ -89,6 +89,34 @@ unwrapping is technically unnecessary.  That said, unwrap is available in the
 event a reference to the original dictionary is lost or goes out of scope.
 
 
+# function add_attribute(wrapped_item, attribute_name, attribute_value)
+
+The _add\_attribute_ function can be used to add an attribute to a DictWrapper
+after it has been instantiated.  It can be used if the original dictionary is
+no longer available.
+
+    >>> from python_dict_wrapper import wrap, add_attribute
+    >>> auth_config = wrap({'username': 'john@doe.com', 'password': 'itza!secret'})
+    >>> add_attribute(auth_config, 'host', 'ldap.doe.com')
+    >>> auth_config.host
+    'ldap.doe.com'
+
+
+# function del_attribute(wrapped_item, attribute_name)
+
+Conversely, _del\_attribute_ removes an existing attribute from an existing
+DictWrapper.  The del_attribute will return what the attribute's last value was
+before being removed.
+
+    >>> from python_dict_wrapper import wrap, del_attribute
+    >>> auth_config = wrap({'username': 'john@doe.com', 'password': 'itza!secret'})
+    >>> del_attribute(auth_config, 'password')
+    'itza!secret'
+    >>> hasattr(auth_config, 'password')
+    False
+
+
+
 # class DictWrapper(data, strict=False, key_prefix=None)
 
 Like the wrap function, each _DictWrapper_ instance takes one required argument
