@@ -50,6 +50,18 @@ class DictWrapperTests(TestCase):
                                'to_json']
         self.assertEquals(dir(sut), expected_attributes)
 
+    def test_dict_wrapper_equality(self):
+        dict_1 = {'name': 'Joe'}
+        dict_2 = {'title': 'Tiger King'}
+        dw1 = wrap(dict_1)
+        dw2 = wrap(dict_1)
+        dw3 = wrap(dict_2)
+        self.assertEquals(dw1, dw2)
+        self.assertEquals(dw1, dict_1)
+        self.assertNotEqual(dw1, dict_2)
+        self.assertNotEqual(dw1, dw3)
+        self.assertNotEqual(dw1, 10)
+
     def test_to_json_pretty(self):
         import json
         sut = DictWrapper(self.test_dict)

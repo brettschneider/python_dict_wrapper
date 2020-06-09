@@ -8,7 +8,7 @@ with open("README.rst", "r") as fh:
 setup(
     name = 'python-dict-wrapper',
     py_modules = ['python_dict_wrapper'],
-    version = '0.9',
+    version = '1.0',
     description = 'Wraps Python dictionary keys as attributes',
     long_description=long_description,
     author = 'Steve Brettschneider',

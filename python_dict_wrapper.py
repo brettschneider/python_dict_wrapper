@@ -65,9 +65,11 @@ class DictWrapper(object):
         key = self._fix_key(key)
         self._check_for_bad_attribute(key)
         if isinstance(self.__private_data__[key], dict):
-            return DictWrapper(self.__private_data__[key], strict=self.__strict__, key_prefix=self.__key_prefixes__, mutable=self.__mutable__)
+            return DictWrapper(self.__private_data__[key], strict=self.__strict__, key_prefix=self.__key_prefixes__,
+                               mutable=self.__mutable__)
         if isinstance(self.__private_data__[key], list):
-            return ListWrapper(self.__private_data__[key], strict=self.__strict__, key_prefix=self.__key_prefixes__, mutable=self.__mutable__)
+            return ListWrapper(self.__private_data__[key], strict=self.__strict__, key_prefix=self.__key_prefixes__,
+                               mutable=self.__mutable__)
         return self.__private_data__[key]
 
     def __setattr__(self, key, value):
@@ -85,6 +87,13 @@ class DictWrapper(object):
                 value.__class__.__name__
             ))
         self.__private_data__[key] = value
+
+    def __eq__(self, other):
+        if isinstance(other, DictWrapper):
+            return self.__private_data__ == other.__private_data__
+        if isinstance(other, dict):
+            return self.__private_data__ == other
+        return False
 
     def _fix_key(self, key):
         """
@@ -150,6 +159,19 @@ class ListWrapper(list):
 
     def __iter__(self):
         return _ListWrapperIterator(self)
+
+    def __iadd__(self, item):
+        if not self.__mutable__:
+            raise AttributeError("can't set attribute")
+        self.__private_data__ += item
+        return super(ListWrapper, self).__iadd__(item)
+
+    def __eq__(self, other):
+        if isinstance(other, ListWrapper):
+            return self.__private_data__ == other.__private_data__
+        if isinstance(other, list):
+            return self.__private_data__ == other
+        return False
 
     def append(self, item):
         if not self.__mutable__:
