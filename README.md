@@ -43,6 +43,28 @@ A trivial example:
     
     requests.post('http://ficticious_actor_database_site.com/actors/c/carell_steve', data=unwrapped_actor)
 
+# Installation
+
+**python_dict_wrapper** is available on PyPi, so the easiest way to install it
+is by using pip:
+
+    $ pip install python-dict-wrapper
+    
+    
+# function make\_wrapper(**kargs)
+
+_make\_wrapper_ is a factory function for quickly instantiating a _DictWrapper_
+from keyword arguments.  It's easier to demonstrate:
+
+    >>> from python_dict_wrapper import make_wrapper
+    >>>
+    >>> person = make_wrapper(first_name='Steve', last_name='Carell', occupation='actor')
+    >>> person
+    <DictWrapper: {'first_name': 'Steve', 'last_name': 'Carell', 'occupation': 'actor'}>
+    >>> person.last_name
+    'Carell'
+    
+    
 # function wrap(data, strict=False, key_prefix=None, mutable=True)
 
 _wrap_ is a factory function for generating either a DictWrapper or a
@@ -60,6 +82,17 @@ ListWrapper.  It has one required argument and three optional ones:
   
 This is a convenience function for when you have a data object and don't want
 to bother checking if it's a dictionary or a list.
+
+    >>> from python_dict_wrapper import wrap
+    >>>
+    >>> person_dict = {'first_name': 'Steve', 'last_name': 'Carell', 'occupation': 'actor'}
+    >>>
+    >>> person = wrap(person_dict)
+    >>>
+    >>> person
+    <DictWrapper: {'first_name': 'Steve', 'last_name': 'Carell', 'occupation': 'actor'}>
+    >>> person.occupation
+    'actor'
 
 
 # function unwrap(wrapped_item)
@@ -251,11 +284,11 @@ a Python list, it will wrap it in another ListWrapper.
     >>> wrapped_list[0]
     'one'
     >>> wrapped_list[1]
-    [1, 2, 3]
-    >>> wrapped_list[1].__class__
-    <class 'python_dict_wrapper.ListWrapper'>
+    <ListWrapper: [1, 2, 3]>
+    >>> wrapped_list[1][2]
+    3
     >>> wrapped_list[2]
-    <python_dict_wrapper.DictWrapper object at 0x10fcc60a0>
+    <DictWrapper: {'color': 'blue'}>
     >>> wrapped_list[2].color
     'blue'
 
@@ -266,7 +299,7 @@ If the _DictWrapper_ is instantiated with _mutable_ set to True (default), the
 _DictWrapper_ will be mutable, meaning the attribute can be changed.  However, if
 _mutable_ is set to False when the DictWrapper is instantiated, it will be immutable.
 You will not be able to change any of the attributes (or nested attributes).  Any
-ListWrappers the result from lists within the underlying dict will also be immutable.
+ListWrappers that result from lists within the underlying dict will also be immutable.
 You will not be able to add/remove from them.
 
     >>> from python_dict_wrapper import wrap

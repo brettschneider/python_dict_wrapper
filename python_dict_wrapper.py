@@ -46,6 +46,10 @@ def unwrap(wrapper):
     return wrapper
 
 
+def make_wrapper(*args, **kwargs):
+    return wrap(kwargs)
+
+
 class DictWrapper(object):
     """Wraps a dictionary and presents the dictionary's keys as attributes."""
 
@@ -54,6 +58,9 @@ class DictWrapper(object):
         self.__strict__ = strict
         self.__key_prefixes__ = key_prefix if isinstance(key_prefix, list) else [key_prefix]
         self.__mutable__ = mutable
+
+    def __repr__(self):
+        return f"<DictWrapper: {self.to_dict()}>"
 
     def __dir__(self):
         normal_attributes = super(DictWrapper, self).__dir__()
@@ -140,6 +147,9 @@ class ListWrapper(list):
         self.__strict__ = strict
         self.__key_prefix__ = key_prefix
         self.__mutable__ = mutable
+
+    def __repr__(self):
+        return f"<ListWrapper: {self.__private_data__}>"
 
     def __getitem__(self, index):
         """If the item in question is a dictionary, wrap it."""
