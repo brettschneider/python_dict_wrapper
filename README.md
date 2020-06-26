@@ -45,7 +45,7 @@ A trivial example:
 
 # Installation
 
-**python_dict_wrapper** is available on PyPi, so the easiest way to install it
+python_dict_wrapper is available on PyPi, so the easiest way to install it
 is by using pip:
 
     $ pip install python-dict-wrapper
