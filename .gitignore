@@ -10,3 +10,6 @@ MANIFEST
 build
 dist
 python_dict_wrapper.egg-info
+.coverage
+coverage.xml
+test_results.xml
