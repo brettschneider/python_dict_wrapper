@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "python_dict_wrapper"
+version = "1.0.1"
+authors = [
+  { name="Steve Brettschneider", email="steve@bluehousefamily.com" },
+]
+description = "A dictionary wrapper"
+readme = "README.md"
+license = { file="LICENSE" }
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+]
+
+[tool.setuptools]
+py-modules=['python_dict_wrapper']
+
+[project.urls]
+"Homepage" = "https://github.com/brettschneider/python_dict_wrapper"
+"Bug Tracker" = "https://github.com/brettschneider/python_dict_wrapper/issues"
